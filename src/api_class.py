@@ -60,11 +60,3 @@ class SuperJobAPI(AbstractAPI):
         else:
             print(f"'Ошибка при обращении к API:', {response.status_code}")
             return []
-
-
-# hh = HeadHunterAPI()
-# d = hh.get_vacancies('python')
-# sj = SuperJobAPI()
-# f = sj.get_vacancies('python')
-# print(d)
-# print(f)
