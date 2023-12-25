@@ -1,1 +1,1 @@
-# job-parser
+# Парсер вакансий через API сайтов HeadHunter и SuperJob
