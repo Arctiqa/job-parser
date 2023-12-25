@@ -52,7 +52,7 @@ class SuperJobAPI(AbstractAPI):
 
     def get_vacancies(self, vacancy):
 
-        params = {"keywords": vacancy}
+        params = {"keyword": vacancy}
         response = requests.get(self.url, headers=self.headers, params=params)
 
         if response.status_code == 200:
@@ -62,9 +62,9 @@ class SuperJobAPI(AbstractAPI):
             return []
 
 
-hh = HeadHunterAPI()
-d = hh.get_vacancies('python')
-sj = SuperJobAPI()
-f = sj.get_vacancies('python')
+# hh = HeadHunterAPI()
+# d = hh.get_vacancies('python')
+# sj = SuperJobAPI()
+# f = sj.get_vacancies('python')
 # print(d)
-print(f)
+# print(f)
