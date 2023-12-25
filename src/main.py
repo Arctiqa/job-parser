@@ -1,83 +1,56 @@
-from src.api_abs_class import HeadHunterAPI, SuperJobAPI
-from src.tojson import JSONSaver
-from src.vacancy import Vacancy
-from utils import filter_vacancies, get_top_n_vacancies, vacancies_info, sort_vacancies
+from src.api_class import HeadHunterAPI, SuperJobAPI
+from src.jsonsaver import JSONSaver
+from utils import requirements_filter, get_top_n_vacancies, vacancies_info, sort_vacancies
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
 def main():
-    hh_api = HeadHunterAPI()
-    superjob_api = SuperJobAPI()
-    json_saver = JSONSaver("vacancies.json")
+    while True:
+        print("Выберите платформу (HeadHunter/SuperJob): ")
 
-    hh_api.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-                      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.203'}
+        platform = input().lower()
 
-    hh_vacancies = hh_api.get_vacancies("Python")
-    superjob_vacancies = superjob_api.get_vacancies("Python")
+        if platform not in ["headhunter", "superjob"]:
+            continue
 
-    # Создание вакансий для примера
-    vacancy1 = Vacancy(
-        "Python Developer",
-        "https://hh.ru/vacancy/123456",
-        "100 000-150 000 руб.",
-        "Требования: опыт работы от 3 лет...",
-    )
-    vacancy2 = Vacancy(
-        "Data Scientist",
-        "https://superjob.ru/vacancy/789012",
-        "120 000-160 000 руб.",
-        "Требования: знание Python, опыт с ML...",
-    )
+        print("Введите название вакансии: ")
+        user_vacancy = input()
 
-    # Сохранение вакансий в файл
-    json_saver.add_vacancy(vacancy1)
-    json_saver.add_vacancy(vacancy2)
+        print("Введите количество вакансий для отображения: ")
+        top_n = int(input())
 
-    # Взаимодействие с пользователем
-    print("Доступные платформы: HeadHunter, SuperJob")
+        print("Введите ключевые слова для фильтрации вакансий (через пробел): ")
+        filter_words = input().split()
 
-    # Выбор платформы
-    platform = input("Выберите платформу (HeadHunter/SuperJob): ")
-    if platform not in ["HeadHunter", "SuperJob"]:
-        print("Некорректная платформа. Выход из программы.")
-        return
+        hh_api = HeadHunterAPI()
+        sj_api = SuperJobAPI()
 
-    search_query = input("Введите поисковый запрос: ")
-    top_n = int(input("Введите количество вакансий для вывода в топ N: "))
-    filter_words = input(
-        "Введите ключевые слова для фильтрации вакансий (через пробел): "
-    ).split()
+        if platform == "headhunter":
+            platform_vacancies = hh_api.get_vacancies(user_vacancy)
+        else:
+            platform_vacancies = sj_api.get_vacancies(user_vacancy)
 
-    # Получение вакансий с выбранной платформы
-    platform_vacancies = (
-        hh_vacancies if platform == "HeadHunter" else superjob_vacancies
-    )
+        filtered_vacancies = requirements_filter(platform_vacancies, filter_words)
 
-    # Фильтрация вакансий
-    filtered_vacancies = filter_vacancies(platform_vacancies, filter_words)
+        if not filtered_vacancies:
+            print("Нет вакансий, соответствующих заданным критериям.")
+            continue
 
-    if not filtered_vacancies:
-        print("Нет вакансий, соответствующих заданным критериям.")
-        return
+        # Сортировка вакансий
+        sorted_vacancies = sort_vacancies(filtered_vacancies)
+        top_vacancies = get_top_n_vacancies(sorted_vacancies, top_n)
 
-    # Сортировка вакансий
-    sorted_vacancies = sort_vacancies(filtered_vacancies)
+        print("Результаты поиска:")
+        vacancies_info(top_vacancies)
 
-    # Получение топ-N вакансий
-    top_vacancies = get_top_n_vacancies(sorted_vacancies, top_n)
-
-    # Вывод вакансий в консоль
-    print("Результаты поиска:")
-    vacancies_info(top_vacancies)
-
-    # Спросить пользователя, хочет ли он сохранить найденные вакансии
-    save_choice = input("Хотите сохранить найденные вакансии? (да/нет): ").lower()
-    if save_choice == "да":
-        for vacancy in top_vacancies:
-            json_saver.add_vacancy(vacancy)
+        save_choice = input("Хотите сохранить найденные вакансии? (да/нет): ").lower()
+        if save_choice == "да":
+            json_saver = JSONSaver("vacancies.json")
+            for vacancy in top_vacancies:
+                json_saver.add_vacancy(vacancy)
+            json_saver.save_to_file()
 
 
 if __name__ == "__main__":
