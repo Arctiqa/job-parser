@@ -1,33 +1,25 @@
 import json
 from abc import ABC, abstractmethod
 
-from vacancies import Vacancy
+from vacancy import Vacancy
 
 
 class AbstractSaver(ABC):
     @abstractmethod
     def add_vacancy(self, vacancy):
         """
-        Абстрактный метод для добавления вакансии в хранилище.
-
-        Parameters:
-        - vacancy (Vacancy): Вакансия для добавления.
-
-        Returns:
-        - bool: True, если вакансия успешно добавлена, False в противном случае.
+        Абстрактный класс, добавляющий вакансии в файл
+        :param vacancy: Список вакансий
+        :return bool:
         """
         pass
 
     @abstractmethod
-    def get_vacancies_by_criteria(self, criteria):
+    def get_vacancies_by_keywords(self, keywords):
         """
-        Абстрактный метод для получения списка вакансий по заданным критериям.
-
-        Parameters:
-        - criteria (dict): Критерии для фильтрации вакансий.
-
-        Returns:
-        - list: Список вакансий, соответствующих критериям.
+        Абстрактный метод для получения списка вакансий по ключевым словам.
+        :param keywords: Ключевые слова фильтрации
+        :return: Отфильтрованный список вакансий
         """
         pass
 
@@ -35,12 +27,8 @@ class AbstractSaver(ABC):
     def delete_vacancy(self, vacancy):
         """
         Абстрактный метод для удаления вакансии из хранилища.
-
-        Parameters:
-        - vacancy (Vacancy): Вакансия для удаления.
-
-        Returns:
-        - bool: True, если вакансия успешно удалена, False в противном случае.
+        :param vacancy: Вакансия для удаления
+        :return bool:
         """
         pass
 
@@ -55,11 +43,11 @@ class JSONSaver(AbstractSaver):
         self._save_to_file()
         return True
 
-    def get_vacancies_by_criteria(self, criteria):
+    def get_vacancies_by_keywords(self, keywords):
         return [
             Vacancy(**vacancy)
             for vacancy in self.vacancies
-            if all(vacancy.get(key) == value for key, value in criteria.items())
+            if all(vacancy.get(key) == value for key, value in keywords.items())
         ]
 
     def delete_vacancy(self, vacancy):

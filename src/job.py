@@ -5,6 +5,11 @@ import json
 class PlatformAPI(ABC):
     @abstractmethod
     def get_jobs(self, search_query):
+        """
+        Абстрактный класс для получения основных характеристик вакансии
+        :param search_query:
+        :return:
+        """
         pass
 
 

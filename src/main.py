@@ -1,21 +1,20 @@
 from src.api_abs_class import HeadHunterAPI, SuperJobAPI
 from src.tojson import JSONSaver
 from src.vacancy import Vacancy
-from utils import filter_vacancies, get_top_vacancies, print_vacancies, sort_vacancies
+from utils import filter_vacancies, get_top_n_vacancies, vacancies_info, sort_vacancies
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
-def user_interaction():
-    # Создание экземпляров классов для работы с API и вакансиями
+def main():
     hh_api = HeadHunterAPI()
     superjob_api = SuperJobAPI()
     json_saver = JSONSaver("vacancies.json")
 
-    hh_api.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                                    ' (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    hh_api.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.203'}
 
-    # Получение вакансий с разных платформ
     hh_vacancies = hh_api.get_vacancies("Python")
     superjob_vacancies = superjob_api.get_vacancies("Python")
 
@@ -41,8 +40,7 @@ def user_interaction():
     print("Доступные платформы: HeadHunter, SuperJob")
 
     # Выбор платформы
-    platform = input("Выберите платформу (HeadHunter/SuperJob): ").capitalize()
-
+    platform = input("Выберите платформу (HeadHunter/SuperJob): ")
     if platform not in ["HeadHunter", "SuperJob"]:
         print("Некорректная платформа. Выход из программы.")
         return
@@ -69,11 +67,11 @@ def user_interaction():
     sorted_vacancies = sort_vacancies(filtered_vacancies)
 
     # Получение топ-N вакансий
-    top_vacancies = get_top_vacancies(sorted_vacancies, top_n)
+    top_vacancies = get_top_n_vacancies(sorted_vacancies, top_n)
 
     # Вывод вакансий в консоль
     print("Результаты поиска:")
-    print_vacancies(top_vacancies)
+    vacancies_info(top_vacancies)
 
     # Спросить пользователя, хочет ли он сохранить найденные вакансии
     save_choice = input("Хотите сохранить найденные вакансии? (да/нет): ").lower()
@@ -83,4 +81,4 @@ def user_interaction():
 
 
 if __name__ == "__main__":
-    user_interaction()
+    main()
